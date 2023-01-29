@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/location_provider.dart';
+import 'package:flutter_map/map_provider.dart';
 import 'package:flutter_map/map.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => MapProvider())
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
