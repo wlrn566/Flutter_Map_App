@@ -18,30 +18,33 @@ class MapSampleState extends State<MapSample> {
   CameraPosition? initialCameraPosition;
   Marker? initialPositionMarker;
 
+  List<Marker> markers = [];
+
   @override
   void initState() {
     super.initState();
-    // setState(() {
-    //   initialCameraPosition = const CameraPosition(
-    //     target: LatLng(37.43263980495858, -122.09192861197333),
-    //     zoom: 14.4746,
-    //   );
-    //   initialPositionMarker = const Marker(
-    //     markerId:  MarkerId("current"),
-    //     position: LatLng(37.43263980495858, -122.09192861197333),
-    //   );
-    // });
-    context.read<MapProvider>().getInitialPosition().then((value) {
-      initialCameraPosition = CameraPosition(
-        target: LatLng(value.latitude, value.longitude),
+    setState(() {
+      initialCameraPosition = const CameraPosition(
+        target: LatLng(37.43263980495858, -122.09192861197333),
         zoom: 14.4746,
       );
-      initialPositionMarker = Marker(
-        markerId:  MarkerId("current"),
-        position: LatLng(value.latitude, value.longitude),
+      initialPositionMarker = const Marker(
+        markerId:  MarkerId("initial"),
+        position: LatLng(37.43263980495858, -122.09192861197333),
       );
-      log("initial position : $value");
+      markers.add(initialPositionMarker!);
     });
+    // context.read<MapProvider>().getInitialPosition().then((value) {
+    //   initialCameraPosition = CameraPosition(
+    //     target: LatLng(value.latitude, value.longitude),
+    //     zoom: 14.4746,
+    //   );
+    //   initialPositionMarker = Marker(
+    //     markerId:  MarkerId("current"),
+    //     position: LatLng(value.latitude, value.longitude),
+    //   );
+    //   log("initial position : $value");
+    // });
   }
 
   @override
@@ -59,9 +62,7 @@ class MapSampleState extends State<MapSample> {
                     _mapController = controller;
                   });
                 },
-                markers: {
-                  initialPositionMarker!
-                },
+                markers: Set.from(markers)
               ),
               Positioned(
                 top: 30,
@@ -81,15 +82,22 @@ class MapSampleState extends State<MapSample> {
                 bottom: 30,
                 left: 10,
                 child: FloatingActionButton(
-                  onPressed: () {
-                    _mapController.animateCamera(
-                      CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                          target: LatLng(_.currentPosition!.latitude, _.currentPosition!.longitude),
-                          zoom: 15
+                  onPressed: () async {
+                    await _.getCurrentPosition().then((value) {
+                      _mapController.animateCamera(
+                        CameraUpdate.newCameraPosition(
+                          CameraPosition(
+                            target: LatLng(value.latitude, value.longitude),
+                            zoom: 15
+                          )
                         )
-                      )
-                    );
+                      );
+                      Marker currentPositionMarker = Marker(
+                        markerId: const MarkerId("current"),
+                        position: LatLng(value.latitude, value.longitude),
+                      );
+                      _.addMarker(markers, currentPositionMarker);
+                    });
                   },
                   backgroundColor: Colors.white,
                   child: const Icon(Icons.gps_fixed, color: Colors.black, size: 30),

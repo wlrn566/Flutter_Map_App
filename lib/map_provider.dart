@@ -5,31 +5,15 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapProvider extends ChangeNotifier {
-  Position? currentPosition;
-  CameraPosition? currentCameraPosition;
-  Marker? currentPositionMarker;
 
   MapType mapType = MapType.hybrid;
   String mapTypeText = "위성";
   int mapTypeIndex = 0;
 
   /// 현재 위치 조회
-  Future<void> getCurrentPosition() async {
+  Future<Position> getCurrentPosition() async {
     log("getCurrentPosition");
-
-    await Geolocator.getCurrentPosition().then((value) {
-      currentPosition = value;
-      currentCameraPosition = CameraPosition(
-        target: LatLng(value.latitude, value.longitude),
-        zoom: 14.4746,
-      );
-      currentPositionMarker = Marker(
-        markerId: const MarkerId("current"),
-        position: LatLng(value.latitude, value.longitude),
-      );
-    });
-    
-    notifyListeners();
+    return await Geolocator.getCurrentPosition();
   }
 
   /// 초기 위치 조회
@@ -42,6 +26,11 @@ class MapProvider extends ChangeNotifier {
       return Future.error('Location services are disabled.');
     }
     return await Geolocator.getCurrentPosition();
+  }
+
+  void addMarker(List<Marker> markers, Marker addMarker) {
+    markers.add(addMarker);
+    notifyListeners();
   }
 
   /// 지도 타입 변경
